@@ -18,9 +18,11 @@ export default function Create() {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  const showSnackbar = (msg) => {
+  const showSnackbar = (msg, severity = "success") => {
     setSnackbarMsg(msg);
+    setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
 
@@ -29,16 +31,31 @@ export default function Create() {
     setSnackbarOpen(false);
   };
 
+  const hasLetters = (str) => /[a-zA-Z]/.test(str);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (title.trim() === "" || description.trim() === "") {
+      showSnackbar("Título y descripción no pueden estar vacíos", "error");
+      return;
+    }
+
+    if (!hasLetters(title)) {
+      showSnackbar("El título debe contener texto, no solo números", "error");
+      return;
+    }
+
+    if (!hasLetters(description)) {
+      showSnackbar("La descripción debe contener texto, no solo números", "error");
+      return;
+    }
+
     const newTask = new Task(title, description);
 
-    // Fecha inicio actual
     newTask.updateStartDate();
 
     if (completed) {
-      // Si está marcada como completada, guardo fecha final igual a ahora
       newTask.updateEndDate();
       newTask.completed = true;
     } else {
@@ -52,7 +69,7 @@ export default function Create() {
     setDescription("");
     setCompleted(false);
 
-    showSnackbar("Tarea creada y guardada correctamente");
+    showSnackbar("Tarea creada y guardada correctamente", "success");
   };
 
   return (
@@ -63,9 +80,9 @@ export default function Create() {
       <Typography
         variant="h3"
         component="h1"
-        className="text-green-600 font-bold mb-8"
+        className="text-blue-600 font-bold mb-8"
       >
-        Welcome to the Create Page
+        Crear Nueva Tarea
       </Typography>
 
       <Box
@@ -120,13 +137,13 @@ export default function Create() {
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={3500}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
           onClose={handleCloseSnackbar}
-          severity="success"
+          severity={snackbarSeverity}
           sx={{ width: "100%" }}
         >
           {snackbarMsg}
